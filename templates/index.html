@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather App</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 10px;
+            background: #4facfe;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #007bff;
+        }
+
+        .weather-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            background: #f5f5f5;
+        }
+
+        .temp {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .desc {
+            text-transform: capitalize;
+            margin: 10px 0;
+        }
+
+        .extra {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .loading {
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🌤️ Weather App</h1>
+
+    <input type="text" id="city" placeholder="Enter city name" />
+    <br>
+
+    <button onclick="getWeather()">🔍 Search</button>
+    <button onclick="getLocationWeather()">📍 Use My Location</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+
+// 🔍 Search by city
+function getWeather() {
+    const city = document.getElementById("city").value;
+    const resultDiv = document.getElementById("result");
+
+    if (!city) {
+        resultDiv.innerHTML = "<p class='error'>⚠️ Please enter a city</p>";
+        return;
+    }
+
+    resultDiv.innerHTML = "<p class='loading'>⏳ Loading...</p>";
+
+    fetch(`http://127.0.0.1:5000/weather?city=${city}`)
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.error) {
+                resultDiv.innerHTML = `<p class='error'>❌ ${data.error}</p>`;
+                return;
+            }
+
+            displayWeather(data);
+        })
+        .catch(() => {
+            resultDiv.innerHTML = "<p class='error'>⚠️ Server error</p>";
+        });
+}
+
+
+// 📍 Auto-detect location
+function getLocationWeather() {
+    const resultDiv = document.getElementById("result");
+
+    if (!navigator.geolocation) {
+        resultDiv.innerHTML = "<p class='error'>❌ Geolocation not supported</p>";
+        return;
+    }
+
+    resultDiv.innerHTML = "<p class='loading'>📍 Getting your location...</p>";
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            fetch(`http://127.0.0.1:5000/weather-by-coords?lat=${lat}&lon=${lon}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (data.error) {
+                        resultDiv.innerHTML = `<p class='error'>❌ ${data.error}</p>`;
+                        return;
+                    }
+
+                    displayWeather(data);
+                });
+        },
+        () => {
+            resultDiv.innerHTML = "<p class='error'>❌ Location access denied</p>";
+        }
+    );
+}
+
+
+// 🌤️ Display weather UI
+function displayWeather(data) {
+    const resultDiv = document.getElementById("result");
+
+    resultDiv.innerHTML = `
+        <div class="weather-box">
+            <h2>📍 ${data.city}</h2>
+            <div class="temp">🌡️ ${data.temperature}°C</div>
+            <div class="desc">☁️ ${data.description}</div>
+            <div class="extra">
+                💧 Humidity: ${data.humidity}% <br>
+                🌬️ Wind: ${data.wind_speed} m/s
+            </div>
+        </div>
+    `;
+}
+
+</script>
+
+</body>
+</html>
