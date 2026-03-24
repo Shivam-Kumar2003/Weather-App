@@ -5,18 +5,23 @@ import requests
 from pymongo import MongoClient
 import os
 
-MONGO_URI = os.getenv("MONGO_URI")
+app = Flask(__name__)
+CORS(app)
 
+# 🔐 API + DB setup
+API_KEY = os.getenv("API_KEY")
+
+MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
 db = client["weather_db"]
 collection = db["search_history"]
 #---------------------------------------------------#
 
-app = Flask(__name__)
-CORS(app)  # ✅ Enable CORS
+#app = Flask(__name__)
+#CORS(app)  # ✅ Enable CORS
 
 # 🔑 Add your OpenWeather API key here
-API_KEY = "82af14c11ba7c036cdac90d7101bd397"
+#API_KEY = "82af14c11ba7c036cdac90d7101bd397"
 
 
 # ✅ Home route (serves index.html)
