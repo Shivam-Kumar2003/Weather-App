@@ -1,13 +1,22 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import requests
+
+from pymongo import MongoClient
 import os
+
+MONGO_URI = os.getenv("MONGO_URI")
+
+client = MongoClient(MONGO_URI)
+db = client["weather_db"]
+collection = db["search_history"]
+#---------------------------------------------------#
 
 app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS
 
 # 🔑 Add your OpenWeather API key here
-API_KEY = os.getenv("API_KEY")
+API_KEY = "82af14c11ba7c036cdac90d7101bd397"
 
 
 # ✅ Home route (serves index.html)
@@ -40,6 +49,8 @@ def get_weather():
             "humidity": data["main"]["humidity"],
             "wind_speed": data["wind"]["speed"]
         }
+
+        collection.insert_one(weather_data)
 
         return jsonify(weather_data)
 
@@ -78,7 +89,12 @@ def get_weather_by_coords():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/history", methods=["GET"])
+def get_history():
+    data = list(collection.find({}, {"_id": 0}))
+    return jsonify(data)
+
 
 # ✅ Run server
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
