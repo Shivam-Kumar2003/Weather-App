@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)  # ✅ Enable CORS
 
 # 🔑 Add your OpenWeather API key here
-API_KEY = os.getenv("82af14c11ba7c036cdac90d7101bd397")
+API_KEY = os.getenv("API_KEY")
 
 
 # ✅ Home route (serves index.html)
