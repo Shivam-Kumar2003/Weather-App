@@ -5,6 +5,12 @@ It allows users to check weather by city or automatically using their current lo
 
 ---
 
+## 🌐 Live Demo
+
+🚀 Check out the live app here:  
+👉 https://weather-app-zm2h.onrender.com
+
+A simple and beautiful weather application built using Flask...
 ## 🚀 Features
 
 - 🔍 Search weather by city name
